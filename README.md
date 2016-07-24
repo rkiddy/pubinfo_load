@@ -13,6 +13,10 @@ work with other operating systems.
 
 I personally use Mac OS X and Ubuntu and will be trying to make sure these scripts work on those systems.
 
+-----------------------
+2016-07-24: Use creates.sql to create the tables. We will assume you know how to create a database and call mysql with the right parameters.
+
+-----------------------
 More to come.
 
 
