@@ -10,25 +10,16 @@
 --  2011-03-18  Rudy-H.    Added more fields, indexes and changed fields.
 --                         See changes_diff.txt file for actual changes.
 --  2012-05-09  Rudy-H.    Added new table veto_message_tbl.
---
+--  2016-07-24  Ray        Remove hard-coded references to database names.
 -- ----------------------------------------------------------------------------+
 
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- -------------------------------------
--- Database
--- -------------------------------------
-CREATE DATABASE IF NOT EXISTS `capublic`
-  CHARACTER SET utf8 COLLATE  utf8_general_ci;
-USE `capublic`;
-
-GRANT ALL ON capublic.* TO capublic@'%' IDENTIFIED BY 'capublic';
-
--- -------------------------------------
 -- Tables
 -- -------------------------------------
-DROP TABLE IF EXISTS `capublic`.`bill_analysis_tbl`;
-CREATE TABLE `capublic`.`bill_analysis_tbl`     (
+DROP TABLE IF EXISTS `bill_analysis_tbl`;
+CREATE TABLE `bill_analysis_tbl`     (
   `analysis_id`                 DECIMAL(22, 0)          NOT NULL,
   `bill_id`                     VARCHAR(20)     BINARY  NOT NULL,
   `house`                       VARCHAR(1)      BINARY  NULL,
@@ -50,8 +41,8 @@ CREATE TABLE `capublic`.`bill_analysis_tbl`     (
 ENGINE = INNODB
 CHARACTER SET utf8 COLLATE utf8_general_ci;
 
-DROP TABLE IF EXISTS `capublic`.`bill_detail_vote_tbl`;
-CREATE TABLE `capublic`.`bill_detail_vote_tbl`  (
+DROP TABLE IF EXISTS `bill_detail_vote_tbl`;
+CREATE TABLE `bill_detail_vote_tbl`  (
   `bill_id`                     VARCHAR(20)     BINARY  NOT NULL,
   `location_code`               VARCHAR(6)      BINARY  NOT NULL,
   `legislator_name`             VARCHAR(50)     BINARY  NOT NULL,
@@ -71,8 +62,8 @@ CREATE TABLE `capublic`.`bill_detail_vote_tbl`  (
 ENGINE = INNODB
 CHARACTER SET utf8 COLLATE utf8_general_ci;
 
-DROP TABLE IF EXISTS `capublic`.`bill_history_tbl`;
-CREATE TABLE `capublic`.`bill_history_tbl`      (
+DROP TABLE IF EXISTS `bill_history_tbl`;
+CREATE TABLE `bill_history_tbl`      (
   `bill_id`                     VARCHAR(20)     BINARY  NULL,
   `bill_history_id`             DECIMAL(20, 0)          NULL,
   `action_date`                 DATETIME                NULL,
@@ -91,8 +82,8 @@ CREATE TABLE `capublic`.`bill_history_tbl`      (
 ENGINE = INNODB
 CHARACTER SET utf8 COLLATE utf8_general_ci;
 
-DROP TABLE IF EXISTS `capublic`.`bill_motion_tbl`;
-CREATE TABLE `capublic`.`bill_motion_tbl`       (
+DROP TABLE IF EXISTS `bill_motion_tbl`;
+CREATE TABLE `bill_motion_tbl`       (
   `motion_id`                   DECIMAL(20, 0)          NOT NULL,
   `motion_text`                 VARCHAR(250)    BINARY  NULL,
   `trans_uid`                   VARCHAR(30)     BINARY  NULL,
@@ -102,8 +93,8 @@ CREATE TABLE `capublic`.`bill_motion_tbl`       (
 ENGINE = INNODB
 CHARACTER SET utf8 COLLATE utf8_general_ci;
 
-DROP TABLE IF EXISTS `capublic`.`bill_summary_vote_tbl`;
-CREATE TABLE `capublic`.`bill_summary_vote_tbl` (
+DROP TABLE IF EXISTS `bill_summary_vote_tbl`;
+CREATE TABLE `bill_summary_vote_tbl` (
   `bill_id`                     VARCHAR(20)     BINARY  NOT NULL,
   `location_code`               VARCHAR(6)      BINARY  NOT NULL,
   `vote_date_time`              DATETIME                NOT NULL,
@@ -126,8 +117,8 @@ CREATE TABLE `capublic`.`bill_summary_vote_tbl` (
 ENGINE = INNODB
 CHARACTER SET utf8 COLLATE utf8_general_ci;
 
-DROP TABLE IF EXISTS `capublic`.`bill_tbl`;
-CREATE TABLE `capublic`.`bill_tbl`      (
+DROP TABLE IF EXISTS `bill_tbl`;
+CREATE TABLE `bill_tbl`      (
   `bill_id`                     VARCHAR(19)     BINARY  NOT NULL,
   `session_year`                VARCHAR(8)      BINARY  NOT NULL,
   `session_num`                 VARCHAR(2)      BINARY  NOT NULL,
@@ -157,8 +148,8 @@ CREATE TABLE `capublic`.`bill_tbl`      (
 ENGINE = INNODB
 CHARACTER SET utf8 COLLATE utf8_general_ci;
 
-DROP TABLE IF EXISTS `capublic`.`bill_version_authors_tbl`;
-CREATE TABLE `capublic`.`bill_version_authors_tbl`      (
+DROP TABLE IF EXISTS `bill_version_authors_tbl`;
+CREATE TABLE `bill_version_authors_tbl`      (
   `bill_version_id`             VARCHAR(30)     BINARY  NOT NULL,
   `type`                        VARCHAR(15)     BINARY  NOT NULL,
   `house`                       VARCHAR(100)    BINARY  NULL,
@@ -175,8 +166,8 @@ CREATE TABLE `capublic`.`bill_version_authors_tbl`      (
 ENGINE = INNODB
 CHARACTER SET utf8 COLLATE utf8_general_ci;
 
-DROP TABLE IF EXISTS `capublic`.`bill_version_tbl`;
-CREATE TABLE `capublic`.`bill_version_tbl`      (
+DROP TABLE IF EXISTS `bill_version_tbl`;
+CREATE TABLE `bill_version_tbl`      (
   `bill_version_id`             VARCHAR(30)     BINARY  NOT NULL,
   `bill_id`                     VARCHAR(19)     BINARY  NOT NULL,
   `version_num`                 INT(2)                  NOT NULL,
@@ -202,16 +193,16 @@ CREATE TABLE `capublic`.`bill_version_tbl`      (
 ENGINE = INNODB
 CHARACTER SET utf8 COLLATE utf8_general_ci;
 
-DROP TABLE IF EXISTS `capublic`.`codes_tbl`;
-CREATE TABLE `capublic`.`codes_tbl`     (
+DROP TABLE IF EXISTS `codes_tbl`;
+CREATE TABLE `codes_tbl`     (
   `code`                        VARCHAR(5)      BINARY  NULL,
   `title`                       VARCHAR(2000)   BINARY  NULL
 )
 ENGINE = INNODB
 CHARACTER SET utf8 COLLATE utf8_general_ci;
 
-DROP TABLE IF EXISTS `capublic`.`committee_hearing_tbl`;
-CREATE TABLE `capublic`.`committee_hearing_tbl` (
+DROP TABLE IF EXISTS `committee_hearing_tbl`;
+CREATE TABLE `committee_hearing_tbl` (
   `bill_id`                     VARCHAR(20)     BINARY  NULL,
   `committee_type`              VARCHAR(2)      BINARY  NULL,
   `committee_nr`                INT(5)                  NULL,
@@ -224,8 +215,8 @@ CREATE TABLE `capublic`.`committee_hearing_tbl` (
 ENGINE = INNODB
 CHARACTER SET utf8 COLLATE utf8_general_ci;
 
-DROP TABLE IF EXISTS `capublic`.`daily_file_tbl`;
-CREATE TABLE `capublic`.`daily_file_tbl`        (
+DROP TABLE IF EXISTS `daily_file_tbl`;
+CREATE TABLE `daily_file_tbl`        (
   `bill_id`                     VARCHAR(20)     BINARY  NULL,
   `location_code`               VARCHAR(6)      BINARY  NULL,
   `consent_calendar_code`       INT(2)                  NULL,
@@ -242,8 +233,8 @@ CREATE TABLE `capublic`.`daily_file_tbl`        (
 ENGINE = INNODB
 CHARACTER SET utf8 COLLATE utf8_general_ci;
 
-DROP TABLE IF EXISTS `capublic`.`law_section_tbl`;
-CREATE TABLE `capublic`.`law_section_tbl`       (
+DROP TABLE IF EXISTS `law_section_tbl`;
+CREATE TABLE `law_section_tbl`       (
   `id`                          VARCHAR(100)    BINARY  NULL,
   `law_code`                    VARCHAR(5)      BINARY  NULL,
   `section_num`                 VARCHAR(30)     BINARY  NULL,
@@ -270,8 +261,8 @@ CREATE TABLE `capublic`.`law_section_tbl`       (
 ENGINE = INNODB
 CHARACTER SET utf8 COLLATE utf8_general_ci;
 
-DROP TABLE IF EXISTS `capublic`.`law_toc_sections_tbl`;
-CREATE TABLE `capublic`.`law_toc_sections_tbl`  (
+DROP TABLE IF EXISTS `law_toc_sections_tbl`;
+CREATE TABLE `law_toc_sections_tbl`  (
   `id`                          VARCHAR(100)    BINARY  NULL,
   `law_code`                    VARCHAR(5)      BINARY  NULL,
   `node_treepath`               VARCHAR(100)    BINARY  NULL,
@@ -290,8 +281,8 @@ CREATE TABLE `capublic`.`law_toc_sections_tbl`  (
 ENGINE = INNODB
 CHARACTER SET utf8 COLLATE utf8_general_ci;
 
-DROP TABLE IF EXISTS `capublic`.`law_toc_tbl`;
-CREATE TABLE `capublic`.`law_toc_tbl`   (
+DROP TABLE IF EXISTS `law_toc_tbl`;
+CREATE TABLE `law_toc_tbl`   (
   `law_code`                    VARCHAR(5)      BINARY  NULL,
   `division`                    VARCHAR(100)    BINARY  NULL,
   `title`                       VARCHAR(100)    BINARY  NULL,
@@ -321,8 +312,8 @@ CREATE TABLE `capublic`.`law_toc_tbl`   (
 ENGINE = INNODB
 CHARACTER SET utf8 COLLATE utf8_general_ci;
 
-DROP TABLE IF EXISTS `capublic`.`legislator_tbl`;
-CREATE TABLE `capublic`.`legislator_tbl`        (
+DROP TABLE IF EXISTS `legislator_tbl`;
+CREATE TABLE `legislator_tbl`        (
   `district`                    VARCHAR(5)      BINARY  NOT NULL,
   `session_year`                VARCHAR(8)      BINARY  NULL,
   `legislator_name`             VARCHAR(30)     BINARY  NULL,
@@ -343,8 +334,8 @@ CREATE TABLE `capublic`.`legislator_tbl`        (
 ENGINE = INNODB
 CHARACTER SET utf8 COLLATE utf8_general_ci;
 
-DROP TABLE IF EXISTS `capublic`.`location_code_tbl`;
-CREATE TABLE `capublic`.`location_code_tbl`     (
+DROP TABLE IF EXISTS `location_code_tbl`;
+CREATE TABLE `location_code_tbl`     (
   `session_year`                VARCHAR(8)      BINARY  NULL,
   `location_code`               VARCHAR(6)      BINARY  NOT NULL,
   `location_type`               VARCHAR(1)      BINARY  NOT NULL,
@@ -361,8 +352,8 @@ CREATE TABLE `capublic`.`location_code_tbl`     (
 ENGINE = INNODB
 CHARACTER SET utf8 COLLATE utf8_general_ci;
 
-DROP TABLE IF EXISTS `capublic`.`veto_message_tbl`;
-CREATE TABLE `capublic`.`veto_message_tbl` (
+DROP TABLE IF EXISTS `veto_message_tbl`;
+CREATE TABLE `veto_message_tbl` (
   `bill_id`                     varchar(20)     BINARY  NULL,
   `veto_date`                   datetime                NULL,
   `message`                     longtext        BINARY  NULL,
@@ -372,8 +363,8 @@ CREATE TABLE `capublic`.`veto_message_tbl` (
 ENGINE = INNODB
 CHARACTER SET utf8 COLLATE utf8_general_ci;
 
-DROP TABLE IF EXISTS `capublic`.`committee_agenda_tbl`;
-CREATE TABLE `capublic`.`committee_agenda_tbl` (
+DROP TABLE IF EXISTS `committee_agenda_tbl`;
+CREATE TABLE `committee_agenda_tbl` (
   `committee_code`       varchar(200)    BINARY  NULL,
   `committee_desc`       varchar(1000)   BINARY  NULL,
   `agenda_date`          datetime                NULL,
