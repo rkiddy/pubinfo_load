@@ -1,0 +1,12 @@
+#!/bin/sh
+
+cd /home/ray/Projects/Leginfo
+
+./01_download_latest
+./02_unzip_data
+./03_delete_extra_data
+./04_import_data
+./05_data_fix
+./06_data_check
+./07_data_replace
+

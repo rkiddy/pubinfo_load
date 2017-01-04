@@ -1,0 +1,71 @@
+#!/bin/sh
+
+db=`find data/* -prune -type d | tail -1 | sed 's/data\///'`
+
+echo "db is \"$db\""
+
+if [ ! -d ./data/$db ]; then
+    echo ""
+    echo "Error, could not find database directory \"data/$db\". Aborting."
+    echo ""
+    exit 1
+else
+    echo ""
+    echo "Found database directory \"data/$db\". All good."
+    echo ""
+fi
+
+# We are importing a database. Delete it if it already exists.
+#
+echo "show databases;" | \
+    mysql | \
+    awk '{if ($0 == "'$db'") print "drop database '$db';"}' > /tmp/leginfo_drop_old_$$.sql
+
+if [ -s /tmp/leginfo_drop_old_$$.sql ]; then
+    mysql -vvv < /tmp/leginfo_drop_old_$$.sql
+    echo ""
+else
+    echo ""
+    echo "No existing database to clear."
+    echo ""
+fi
+
+echo "create database $db;" | mysql -vvv
+
+mysql $db < creates.sql
+
+# Now I have to copy the LOB files over to tmp and set ownership.
+#
+if [ -d /tmp/data ]; then
+    /bin/rm -rf /tmp/data
+fi
+
+mkdir /tmp/data
+
+cp ./data/$db/*.lob /tmp/data
+
+chown -R mysql:mysql /tmp/data
+
+# Now on to the real importing....
+#
+./bill_add.sh $db
+./bill_analysis_add.sh $db
+./bill_detail_vote_add.sh $db
+./bill_history_add.sh $db
+./bill_motion_add.sh $db
+./bill_summary_vote_add.sh $db
+./bill_version_add.sh $db
+./bill_version_authors_add.sh $db
+./codes_add.sh $db
+./committee_agenda_add.sh $db
+./committee_hearing_add.sh $db
+./daily_file_add.sh $db
+./law_section_add.sh $db
+./law_toc_add.sh $db
+./law_toc_sections_add.sh $db
+./legislator_add.sh $db
+./location_code_add.sh $db
+./veto_message_add.sh $db
+
+chown -R ray:root ./data
+

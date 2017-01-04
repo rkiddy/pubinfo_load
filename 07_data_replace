@@ -1,0 +1,25 @@
+#!/bin/sh
+
+db=`find data/* -prune -type d | tail -1 | sed 's/data\///'`
+
+echo "db is \"$db\""
+
+if [ ! -d ./data/$db ]; then
+    echo ""
+    echo "Error, could not find database directory \"data/$db\". Aborting."
+    echo ""
+    exit 1
+else
+    echo ""
+    echo "Found database directory \"data/$db\". All good."
+    echo ""
+fi
+
+/usr/bin/mysql <<SQL
+drop database pubinfo_daily;
+create database pubinfo_daily;
+SQL
+
+/usr/bin/mysqldump $db | /usr/bin/mysql pubinfo_daily
+
+exit

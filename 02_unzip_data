@@ -1,0 +1,20 @@
+#!/bin/sh
+
+cd /home/ray/Projects/Leginfo/data
+
+/bin/ls *.zip | \
+    tail -1 | \
+    sed 's/\.zip$//' | \
+    awk '{print "if [ ! -d ./"$0" ]; then";
+          print "    mkdir "$0;
+          print "    cd "$0;
+          print "    unzip ../"$0".zip";
+          print "else"
+          print "    echo \"\"";
+          print "    echo \"Already unzipped.\""
+          print "    echo \"\"";
+          print "fi"}' | \
+    /bin/sh
+
+
+

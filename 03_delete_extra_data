@@ -1,0 +1,22 @@
+#!/bin/sh
+
+cd /home/ray/Projects/Leginfo/data
+
+find * -prune -type d | \
+    awk '{if (NR > 1) print $0}' |
+    sort -r |
+    awk '{if (NR > 2) print $0}' > /tmp/leg_deletes_$$.txt
+
+if [ -s /tmp/leg_deletes_$$.txt ]; then
+    awk '{if (length($0) > 10) print "/bin/rm -rf /home/ray/Projects/Leginfo/data/"$0"/"}' /tmp/leg_deletes_$$.txt | /bin/sh
+else
+    echo ""
+    echo "No extra data directories to delete."
+    echo ""
+fi
+
+awk '{if (length($0) > 10) print "drop database",$0";"}' /tmp/leg_deletes_$$.txt | mysql
+
+/bin/rm /tmp/leg_deletes_$$.txt
+
+exit 0

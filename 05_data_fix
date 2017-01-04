@@ -1,0 +1,96 @@
+#!/bin/sh
+
+db=`find data/* -prune -type d | tail -1 | sed 's/data\///'`
+
+echo "db is \"$db\""
+
+if [ ! -d ./data/$db ]; then
+    echo ""
+    echo "Error, could not find database directory \"data/$db\". Aborting."
+    echo ""
+    exit 1
+else
+    echo ""
+    echo "Found database directory \"data/$db\". All good."
+    echo ""
+fi
+
+/usr/bin/mysql -vvv $db <<SQL
+--
+-- Fix the so-called smart double-quotes.
+--
+update bill_version_tbl set subject = replace(subject, unhex('C3A2E282ACC593'), "\"") where subject regexp unhex('C3A2E282ACC593');
+update bill_version_tbl set subject = replace(subject, unhex('C3A2E282ACC29D'), "\"") where subject regexp unhex('C3A2E282ACC29D');
+--
+-- Fix the o-right-accent, as in DeLeón's and others names.
+--
+update bill_analysis_tbl set amendment_author = replace(amendment_author, unhex('C383C2B3'), unhex('C3B3')) where amendment_author regexp unhex('C383C2B3');
+update bill_detail_vote_tbl set legislator_name = replace(legislator_name, unhex('C383C2B3'), unhex('C3B3')) where legislator_name regexp unhex('C383C2B3');
+update bill_summary_vote_tbl set display_lines = replace(display_lines, unhex('C383C2B3'), unhex('C3B3')) where display_lines regexp unhex('C383C2B3');
+update bill_version_tbl set subject = replace(subject, unhex('C383C2B3'), unhex('C3B3')) where subject regexp unhex('C383C2B3');
+update bill_version_authors_tbl set name = replace(name, unhex('C383C2B3'), unhex('C3B3')) where name regexp unhex('C383C2B3');
+update bill_version_authors_tbl set committee_members = replace(committee_members, unhex('C383C2B3'), unhex('C3B3')) where committee_members regexp unhex('C383C2B3');
+update legislator_tbl set legislator_name = replace(legislator_name, unhex('C383C2B3'), unhex('C3B3')) where legislator_name regexp unhex('C383C2B3');
+update legislator_tbl set author_name = replace(author_name, unhex('C383C2B3'), unhex('C3B3')) where author_name regexp unhex('C383C2B3');
+update legislator_tbl set first_name = replace(first_name, unhex('C383C2B3'), unhex('C3B3')) where first_name regexp unhex('C383C2B3');
+update legislator_tbl set last_name = replace(last_name, unhex('C383C2B3'), unhex('C3B3')) where last_name regexp unhex('C383C2B3');
+update veto_message_tbl set message = replace(message, unhex('C383C2B3'), unhex('C3B3')) where message regexp unhex('C383C2B3');
+--
+-- Fix the a-right-accent, as in Chávez's name.
+--
+update bill_analysis_tbl set amendment_author = replace(amendment_author, unhex('C383C2A1'), unhex('C3A1')) where amendment_author regexp unhex('C383C2A1');
+update bill_detail_vote_tbl set legislator_name = replace(legislator_name, unhex('C383C2A1'), unhex('C3A1')) where legislator_name regexp unhex('C383C2A1');
+update bill_summary_vote_tbl set display_lines = replace(display_lines, unhex('C383C2A1'), unhex('C3A1')) where display_lines regexp unhex('C383C2A1');
+update bill_version_tbl set subject = replace(subject, unhex('C383C2A1'), unhex('C3A1')) where subject regexp unhex('C383C2A1');
+update bill_version_authors_tbl set name = replace(name, unhex('C383C2A1'), unhex('C3A1')) where name regexp unhex('C383C2A1');
+update bill_version_authors_tbl set committee_members = replace(committee_members, unhex('C383C2A1'), unhex('C3A1')) where committee_members regexp unhex('C383C2A1');
+update legislator_tbl set legislator_name = replace(legislator_name, unhex('C383C2A1'), unhex('C3A1')) where legislator_name regexp unhex('C383C2A1');
+update legislator_tbl set author_name = replace(author_name, unhex('C383C2A1'), unhex('C3A1')) where author_name regexp unhex('C383C2A1');
+update legislator_tbl set first_name = replace(first_name, unhex('C383C2A1'), unhex('C3A1')) where first_name regexp unhex('C383C2A1');
+update legislator_tbl set last_name = replace(last_name, unhex('C383C2A1'), unhex('C3A1')) where last_name regexp unhex('C383C2A1');
+update veto_message_tbl set message = replace(message, unhex('C383C2A1'), unhex('C3A1')) where message regexp unhex('C383C2A1');
+--
+-- Fix the apostrophe
+--
+update bill_version_tbl set subject = replace(subject, unhex('C3A2E282ACE284A2'), unhex('27')) where subject regexp unhex('C3A2E282ACE284A2');
+--
+-- Fix the em-dash (although this may be wrong in this case)
+--
+update bill_version_tbl set subject = replace(subject, unhex('C3A2E282ACE2809D'), unhex('-')) where subject regexp unhex('C3A2E282ACE2809D');
+--
+-- Add pk to legislator table.
+--
+alter table legislator_tbl add column pk int;
+update legislator_tbl cross join (select @pk:=0) as init set legislator_tbl.pk=@pk:=@pk+1;
+alter table legislator_tbl add primary key (pk);
+--
+-- Add the pk to the version authors table.
+--
+alter table bill_version_authors_tbl add column pk int;
+update bill_version_authors_tbl cross join (select @pk:=0) as init set bill_version_authors_tbl.pk=@pk:=@pk+1;
+alter table bill_version_authors_tbl add primary key (pk);
+--
+-- Add a foreign key for the legislator table in the detail votes table.
+--
+alter table bill_detail_vote_tbl add column legislator_pk int;
+update bill_detail_vote_tbl v1 join legislator_tbl leg1 set v1.legislator_pk = leg1.pk where v1.legislator_name = leg1.author_name;
+--
+-- Add a foreign key for the legislator table in the version authors table.
+--
+alter table bill_version_authors_tbl add column legislator_pk int;
+update bill_version_authors_tbl v1 join legislator_tbl leg1 set legislator_pk = leg1.pk where v1.name = leg1.author_name;
+--
+-- This makes use of the two existing columns. Will this contiue to work?
+--
+alter table bill_summary_vote_tbl add primary key (bill_id, motion_id);
+--
+-- Fix the data type of the legislator.district column so that it is numeric.
+--
+-- (Some way to check if there is an error? If some district does not start with 'AD' or 'SD'?
+--
+update legislator_tbl set district = substr(district,3) where district like 'AD%' or district like 'SD%';
+alter table legislator_tbl change column district district int;
+--
+SQL
+
+exit

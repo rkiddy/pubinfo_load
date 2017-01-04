@@ -1,0 +1,71 @@
+#!/bin/sh
+
+cd /home/ray/Projects/Leginfo
+
+echo "" > /tmp/log001.txt
+
+if [ -f /tmp/list.html ]; then
+    /bin/rm -f /tmp/list.html
+fi
+
+wget --quiet --output-document=/tmp/sos_list.html 'http://downloads.leginfo.legislature.ca.gov/'
+
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "ERROR: Could not download listing from http://downloads.leginfo.legislature.ca.gov/"
+    echo ""
+    exit 1
+fi
+
+cat /tmp/sos_list.html | \
+  sed 's/\-/ /g' | \
+  sed 's/>/ /g' | \
+  sed 's/</ /g' | \
+  sed 's/://g' | \
+  sed 's/  / /g' | \
+  sed 's/ Jan / 01 /g' | \
+  sed 's/ Feb / 02 /g' | \
+  sed 's/ Mar / 03 /g' | \
+  sed 's/ Apr / 04 /g' | \
+  sed 's/ May / 05 /g' | \
+  sed 's/ Jun / 06 /g' | \
+  sed 's/ Jul / 07 /g' | \
+  sed 's/ Aug / 08 /g' | \
+  sed 's/ Sep / 09 /g' | \
+  sed 's/ Oct / 10 /g' | \
+  sed 's/ Nov / 11 /g' | \
+  sed 's/ Dec / 12 /g' | \
+  sed 's/\.zip//g' | \
+  grep pubinfo_daily_ > /tmp/log002.txt
+ 
+awk '{print $19"_"$18"_"$17"_"$20,$12}' /tmp/log002.txt | sed 's/ /_/' | sort > /tmp/log003.txt
+
+cat /tmp/log003.txt >> /tmp/log001.txt
+
+echo "" >> /tmp/log001.txt
+
+# examples
+# 2016_12_10_2120_pubinfo_daily_Sat
+# 2016_12_11_2130_pubinfo_daily_Sun
+# 2016_12_12_2120_pubinfo_daily_Mon
+# 2016_12_13_2120_pubinfo_daily_Tue
+# 2016_12_14_2120_pubinfo_daily_Wed
+# 2016_12_15_2120_pubinfo_daily_Thu
+# 2016_12_16_2120_pubinfo_daily_Fri
+
+tail -1 /tmp/log003.txt | \
+awk 'BEGIN{FS="_"}
+     {print "if [ ! -f ./data/"$5"_"$6"_"$1"_"$2"_"$3"_"$4"_"$7.".zip ]; then";
+          print "    wget -q -O ./data/"$5"_"$6"_"$1"_"$2"_"$3"_"$4"_"$7.".zip http://downloads.leginfo.legislature.ca.gov/"$5"_"$6"_"$7".zip";
+          print "fi"}' | \
+    /bin/sh -vx >> /tmp/log001.txt 2>&1
+
+echo "" >> /tmp/log001.txt
+
+echo "Confirm at http://downloads.leginfo.legislature.ca.gov/" >> /tmp/log001.txt
+
+echo "" >> /tmp/log001.txt
+
+/usr/bin/mail -s 'CA Legislature Daily Data Fetch' ray@ganymede.org < /tmp/log001.txt
+
+exit 0
