@@ -82,7 +82,7 @@ update bill_version_authors_tbl v1 join legislator_tbl leg1 set legislator_pk = 
 --
 -- This makes use of the two existing columns. Will this contiue to work?
 --
-alter table bill_summary_vote_tbl add primary key (bill_id, motion_id);
+alter table bill_summary_vote_tbl add primary key (bill_id, motion_id, vote_date_seq);
 --
 -- Fix the data type of the legislator.district column so that it is numeric.
 --
