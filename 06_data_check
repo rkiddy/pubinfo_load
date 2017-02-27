@@ -1,10 +1,22 @@
 #!/bin/sh
 
+if [ "$1" = "-v" ]; then
+    sql="mysql -vvv"
+else
+    sql="mysql"
+fi
+
+if [ "$1" = "-nomail" ]; then
+    mail="no"
+else
+    mail="yes"
+fi
+
 db=`find data/* -prune -type d | tail -1 | sed 's/data\///'`
 
 (echo "" ; echo "db is \"$db\"" ; echo "") > /tmp/data_check_log.txt
 
-pk=`echo "select max(pk) from found_data;" | mysql --skip-column-names pubinfo`
+pk=`echo "select max(pk) from found_data;" | $sql --skip-column-names pubinfo`
 
 echo "show tables;" | \
     mysql --skip-column-names $db | \
@@ -17,40 +29,44 @@ echo "show tables;" | \
 (echo "" ; echo "Imported Data:" ; echo "")  >> /tmp/data_check_log.txt
 
 echo "select * from found_data where db_name = '$db';" | \
-    mysql --table pubinfo >> /tmp/data_check_log.txt
+    $sql --table pubinfo >> /tmp/data_check_log.txt
 
-(echo "" ; echo "Changes 1 Day:" ; echo "") >> /tmp/data_check_log.txt
+(echo "" ; echo "Changes 2 Day:" ; echo "") >> /tmp/data_check_log.txt
 
-echo "select current_status, count(*) from bill_tbl where trans_update > date_add(now(), interval -1 day) group by current_status;" | \
-    mysql --table $db >> /tmp/data_check_log.txt
+echo "select current_status, count(*) from bill_tbl where trans_update > date_add(now(), interval -2 day) group by current_status;" | \
+    $sql --table $db >> /tmp/data_check_log.txt
 
-echo "select measure_state, count(*) from bill_tbl where trans_update > date_add(now(), interval -1 day) group by measure_state;" | \
-    mysql --table $db >> /tmp/data_check_log.txt
+echo "select measure_state, count(*) from bill_tbl where trans_update > date_add(now(), interval -2 day) group by measure_state;" | \
+    $sql --table $db >> /tmp/data_check_log.txt
 
 (echo "" ; echo "Changes 7 Day:" ; echo "") >> /tmp/data_check_log.txt
 
 echo "select current_status, count(*) from bill_tbl where trans_update > date_add(now(), interval -7 day) group by current_status;" | \
-    mysql --table $db >> /tmp/data_check_log.txt
+    $sql --table $db >> /tmp/data_check_log.txt
 
 echo "select measure_state, count(*) from bill_tbl where trans_update > date_add(now(), interval -7 day) group by measure_state;" | \
-    mysql --table $db >> /tmp/data_check_log.txt
+    $sql --table $db >> /tmp/data_check_log.txt
 
 (echo "" ; echo "Changes 31 Day:" ; echo "") >> /tmp/data_check_log.txt
 
 echo "select current_status, count(*) from bill_tbl where trans_update > date_add(now(), interval -31 day) group by current_status;" | \
-    mysql --table $db >> /tmp/data_check_log.txt
+    $sql --table $db >> /tmp/data_check_log.txt
 
 echo "select measure_state, count(*) from bill_tbl where trans_update > date_add(now(), interval -31 day) group by measure_state;" | \
-    mysql --table $db >> /tmp/data_check_log.txt
+    $sql --table $db >> /tmp/data_check_log.txt
 
 (echo "" ; echo "All:" ; echo "") >> /tmp/data_check_log.txt
 
 echo "select current_status, count(*) from bill_tbl group by current_status;" | \
-    mysql --table $db >> /tmp/data_check_log.txt
+    $sql --table $db >> /tmp/data_check_log.txt
 
 echo "select measure_state, count(*) from bill_tbl group by measure_state;" | \
-    mysql --table $db >> /tmp/data_check_log.txt
+    $sql --table $db >> /tmp/data_check_log.txt
 
-/usr/bin/mail -s 'CA Legislature Daily Data Check' ray@ganymede.org < /tmp/data_check_log.txt
+if [ $mail = "yes" ]; then
+    /usr/bin/mail -s 'CA Legislature Daily Data Check' ray@ganymede.org < /tmp/data_check_log.txt
+else
+    cat /tmp/data_check_log.txt
+fi
 
 exit 0
